@@ -1,0 +1,29 @@
+{
+  "name": "telephone-claim-bot",
+  "version": "1.1.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@whiskeysockets/baileys": "^7.0.0-rc.3",
+    "country-data": "^0.0.31",
+    "dotenv": "^17.2.2",
+    "input": "^1.0.1",
+    "libphonenumber-js": "^1.12.23",
+    "moment": "^2.30.1",
+    "node-fetch": "^2.7.0",
+    "node-telegram-bot-api": "^0.66.0",
+    "request": "^2.88.2",
+    "request-promise-native": "^1.0.9",
+    "telegraf": "^4.16.3",
+    "telegram": "^2.26.22",
+    "tesseract.js": "^6.0.1",
+    "venom-bot": "^5.3.0",
+    "xlsx": "^0.18.5"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "description": ""
+}
