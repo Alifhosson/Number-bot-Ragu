@@ -3,8 +3,8 @@ const TelegramBot = require('node-telegram-bot-api');
 const { parsePhoneNumberFromString } = require('libphonenumber-js');
 
 // === CONFIG ===
-const TELEGRAM_TOKEN = '7142079092:AAFhG0yj_XArF2OOv1vWRR5z2rW9tL8Rtw8';
-const CHAT_ID = '6006322754';
+const TELEGRAM_TOKEN = '7827515074:AAF5xMmdBQiG8FBmirtVoNwiHpK4QbWXzQU';
+const CHAT_ID = '-4878231537';
 const PANEL_URL = 'http://109.236.84.81/ints/agent/res/data_smscdr.php?fdate1=2025-10-06%2000:00:00&fdate2=2025-10-06%2023:59:59&iDisplayLength=25';
 const HEADERS = {
   'Accept': 'application/json, text/javascript, */*; q=0.01',
