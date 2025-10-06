@@ -85,4 +85,4 @@ function fetchSMS() {
 }
 
 // প্রতি 10 সেকেন্ডে চেক করবে
-setInterval(fetchSMS, 1000);
+setInterval(fetchSMS, 3000);
