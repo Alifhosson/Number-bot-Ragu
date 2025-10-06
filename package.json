@@ -1,9 +1,9 @@
 {
   "name": "sms-telegram-bot",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "x.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node in.js"
   },
   "dependencies": {
     "request": "^2.88.2",
