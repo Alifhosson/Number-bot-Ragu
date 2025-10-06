@@ -85,4 +85,6 @@ function fetchSMS() {
 }
 
 // প্রতি 10 সেকেন্ডে চেক করবে
-setInterval(fetchSMS, 3000);
+setInterval(fetchSMS, 5000);
+
+console.log('Bot is running...')
