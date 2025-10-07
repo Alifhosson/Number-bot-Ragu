@@ -7,12 +7,13 @@ const { parsePhoneNumberFromString } = require("libphonenumber-js");
 const countryEmoji = require("country-emoji");
 
 // === CONFIG ===
-const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN || "8430148380:AAHCV_3hnek0GaZRlPl4tCtc2XNVGuU-L5U";
-// আগে
-// const CHAT_ID = process.env.CHAT_ID || "6006322754";
+const TELEGRAM_TOKEN =
+  process.env.TELEGRAM_TOKEN ||
+  "8430148380:AAHCV_3hnek0GaZRlPl4tCtc2XNVGuU-L5U";
 
-// এখন (একাধিক আইডি)
-const CHAT_IDS = (process.env.CHAT_IDS || "-1002391889544,-1002789126504")
+// multiple chat ids supported
+const CHAT_IDS = (process.env.CHAT_IDS ||
+  "-1002391889544,-1002789126504")
   .split(",")
   .map(id => id.trim());
 
@@ -42,13 +43,8 @@ process.on("unhandledRejection", err => {
 // === OTP Extract ===
 function extractOtp(text) {
   if (!text) return null;
-  // ম্যাচ: 4–8 digit, মাঝে dash বা space থাকতে পারে
   const m = text.match(/\b\d{3,4}(?:[-\s]?\d{2,4})\b/);
-  if (m) {
-    return m[0]; // যেমন "455-888"
-    // return m[0].replace(/\D/g, ""); // শুধু সংখ্যা চাইলে "455888"
-  }
-  return null;
+  return m ? m[0] : null;
 }
 
 // === Country detect ===
@@ -66,7 +62,7 @@ function getCountryInfo(number) {
       const flag = countryEmoji.flag(iso) || "🌍";
       return `${name} ${flag}`;
     }
-  } catch (e) {
+  } catch {
     return "Unknown 🌍";
   }
   return "Unknown 🌍";
@@ -86,18 +82,6 @@ function mapRow(row) {
 }
 
 // === Telegram Send ===
-function mapRow(row) {
-  return {
-    id: row[0],
-    date: row[0],
-    number: row[2],
-    cli: row[3],
-    client: row[4],
-    message: row[5],
-    country: getCountryInfo(row[2]),
-  };
-}
-
 async function sendTelegramSMS(sms) {
   const otp = extractOtp(sms.message) || "N/A";
   const final = `<b>${sms.country} ${sms.cli} OTP Received...</b>
@@ -106,17 +90,28 @@ async function sendTelegramSMS(sms) {
 🔑 <b>𝐘𝐨𝐮𝐫 𝐎𝐓𝐏:</b> <code>${otp}</code>
 🌍 <b>𝐂𝐨𝐮𝐧𝐭𝐫𝐲:</b> ${sms.country}
 📱 <b>𝐒𝐞𝐫𝐯𝐢𝐜𝐞:</b> ${sms.cli}
-📆 <b>❝𝐃𝐚𝐭𝐞❞:</b> ${sms.date}
+📆 <b>Date:</b> ${sms.date}
 
-💬 <b>𝐅𝐮𝐥𝐥 𝐒𝐌𝐒:</b>
-<pre>${sms.message}</pre>
-`;
+💬 <b>Full SMS:</b>
+<pre>${sms.message}</pre>`;
+
+  for (const chatId of CHAT_IDS) {
+    try {
+      await bot.sendMessage(chatId, final, { parse_mode: "HTML" });
+      console.log(`✅ Sent to ${chatId}`);
+    } catch (e) {
+      console.error(`❌ Failed to send to ${chatId}:`, e.message);
+    }
+  }
+}
 
 // === Login + captcha ===
 async function performLoginAndSaveCookies() {
   try {
     console.log("🔐 GET login page...");
-    const getRes = await client.get(LOGIN_PAGE_URL, { headers: { "User-Agent": "Mozilla/5.0" } });
+    const getRes = await client.get(LOGIN_PAGE_URL, {
+      headers: { "User-Agent": "Mozilla/5.0" },
+    });
     const $ = cheerio.load(String(getRes.data || ""));
 
     // parse captcha
@@ -124,12 +119,24 @@ async function performLoginAndSaveCookies() {
     const bodyText = $("body").text();
     const qMatch = bodyText.match(/What is\s*([\-]?\d+)\s*([\+\-\*xX\/])\s*([\-]?\d+)/i);
     if (qMatch) {
-      const a = Number(qMatch[1]), op = qMatch[2], b = Number(qMatch[3]);
+      const a = Number(qMatch[1]),
+        op = qMatch[2],
+        b = Number(qMatch[3]);
       switch (op) {
-        case "+": captchaAnswer = String(a + b); break;
-        case "-": captchaAnswer = String(a - b); break;
-        case "*": case "x": case "X": captchaAnswer = String(a * b); break;
-        case "/": captchaAnswer = b !== 0 ? String(Math.floor(a / b)) : "0"; break;
+        case "+":
+          captchaAnswer = String(a + b);
+          break;
+        case "-":
+          captchaAnswer = String(a - b);
+          break;
+        case "*":
+        case "x":
+        case "X":
+          captchaAnswer = String(a * b);
+          break;
+        case "/":
+          captchaAnswer = b !== 0 ? String(Math.floor(a / b)) : "0";
+          break;
       }
       console.log("Detected captcha:", qMatch[0], "=>", captchaAnswer);
     }
@@ -142,7 +149,8 @@ async function performLoginAndSaveCookies() {
     $("form input[type=hidden]").each((i, el) => {
       const name = $(el).attr("name");
       const val = $(el).attr("value") || "";
-      if (name && !["username","password","capt"].includes(name)) formParams.append(name, val);
+      if (name && !["username", "password", "capt"].includes(name))
+        formParams.append(name, val);
     });
 
     const postRes = await client.post(LOGIN_POST_URL, formParams.toString(), {
@@ -159,7 +167,11 @@ async function performLoginAndSaveCookies() {
     console.log("Login POST status:", postRes.status);
     const body = String(postRes.data || "");
     const looksLikeLoginPage = /<title>.*Login/i.test(body);
-    if ((postRes.status === 302 || postRes.status === 303) && !looksLikeLoginPage) return true;
+    if (
+      (postRes.status === 302 || postRes.status === 303) &&
+      !looksLikeLoginPage
+    )
+      return true;
     if (!looksLikeLoginPage && postRes.status === 200) return true;
 
     console.warn("❌ Login failed, got login page again.");
@@ -208,15 +220,18 @@ async function startWorker() {
     }
 
     setInterval(async () => {
-      const d = await fetchSmsApi();
-      if (!d || !Array.isArray(d.aaData) || d.aaData.length === 0) return;
-      const latest = mapRow(d.aaData[0]);
-      if (latest.id !== lastId) {
-        lastId = latest.id;
-        await sendTelegramSMS(latest);
+      try {
+        const d = await fetchSmsApi();
+        if (!d || !Array.isArray(d.aaData) || d.aaData.length === 0) return;
+        const latest = mapRow(d.aaData[0]);
+        if (latest.id !== lastId) {
+          lastId = latest.id;
+          await sendTelegramSMS(latest);
+        }
+      } catch (err) {
+        console.error("Interval fetch error:", err.message);
       }
     }, 10000);
-
   } catch (err) {
     console.error("Worker error:", err);
     console.log("Retrying worker in 30s...");
