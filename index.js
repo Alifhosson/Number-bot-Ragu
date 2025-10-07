@@ -1,4 +1,3 @@
-// sms-bot.js
 const axios = require("axios").default;
 const tough = require("tough-cookie");
 const { wrapper } = require("axios-cookiejar-support");
@@ -26,19 +25,27 @@ const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: false });
 
 let lastId = null;
 
-// Extract OTP
+// === GLOBAL ERROR HANDLERS ===
+process.on("uncaughtException", err => {
+  console.error("Uncaught Exception:", err);
+});
+process.on("unhandledRejection", err => {
+  console.error("Unhandled Rejection:", err);
+});
+
+// === OTP Extract ===
 function extractOtp(text) {
   if (!text) return null;
-  // 4–8 digit OTP, মাঝখানে ড্যাশ বা স্পেস থাকতে পারে
+  // ম্যাচ: 4–8 digit, মাঝে dash বা space থাকতে পারে
   const m = text.match(/\b\d{3,4}(?:[-\s]?\d{2,4})\b/);
   if (m) {
-    return m[0]; // ড্যাশ 그대로 রাখতে চাইলে
-    // return m[0].replace(/\D/g, ""); // শুধু সংখ্যা চাইলে
+    return m[0]; // যেমন "455-888"
+    // return m[0].replace(/\D/g, ""); // শুধু সংখ্যা চাইলে "455888"
   }
   return null;
 }
 
-// Country detect from number
+// === Country detect ===
 function getCountryInfo(number) {
   if (!number) return "Unknown 🌍";
   let s = String(number).trim().replace(/[^\d+]/g, "");
@@ -59,7 +66,7 @@ function getCountryInfo(number) {
   return "Unknown 🌍";
 }
 
-// Map API row to object
+// === Map API row ===
 function mapRow(row) {
   return {
     id: row[0],
@@ -72,7 +79,7 @@ function mapRow(row) {
   };
 }
 
-// Send SMS to Telegram
+// === Telegram Send ===
 async function sendTelegramSMS(sms) {
   const otp = extractOtp(sms.message) || "N/A";
   const final = `<b>${sms.country} ${sms.cli} OTP Received...</b>
@@ -94,7 +101,7 @@ async function sendTelegramSMS(sms) {
   }
 }
 
-// Login with captcha
+// === Login + captcha ===
 async function performLoginAndSaveCookies() {
   try {
     console.log("🔐 GET login page...");
@@ -152,7 +159,7 @@ async function performLoginAndSaveCookies() {
   }
 }
 
-// Fetch SMS API
+// === Fetch SMS API ===
 async function fetchSmsApi() {
   try {
     const res = await client.get(API_URL, {
@@ -170,30 +177,41 @@ async function fetchSmsApi() {
   }
 }
 
-// Worker
+// === Worker ===
 async function startWorker() {
-  const ok = await performLoginAndSaveCookies();
-  if (!ok) return console.error("Login failed — aborting.");
+  try {
+    let ok = await performLoginAndSaveCookies();
+    if (!ok) {
+      console.error("Login failed — retrying in 30s...");
+      setTimeout(startWorker, 30000);
+      return;
+    }
 
-  const data = await fetchSmsApi();
-  if (data && Array.isArray(data.aaData) && data.aaData.length > 0) {
-    const latest = mapRow(data.aaData[0]);
-    lastId = latest.id;
-    await sendTelegramSMS(latest);
-  } else {
-    console.log("No SMS found initially.");
-  }
-
-  setInterval(async () => {
-    const d = await fetchSmsApi();
-    if (!d || !Array.isArray(d.aaData) || d.aaData.length === 0) return;
-    const latest = mapRow(d.aaData[0]);
-    if (latest.id !== lastId) {
+    const data = await fetchSmsApi();
+    if (data && Array.isArray(data.aaData) && data.aaData.length > 0) {
+      const latest = mapRow(data.aaData[0]);
       lastId = latest.id;
       await sendTelegramSMS(latest);
+    } else {
+      console.log("No SMS found initially.");
     }
-  }, 10000);
+
+    setInterval(async () => {
+      const d = await fetchSmsApi();
+      if (!d || !Array.isArray(d.aaData) || d.aaData.length === 0) return;
+      const latest = mapRow(d.aaData[0]);
+      if (latest.id !== lastId) {
+        lastId = latest.id;
+        await sendTelegramSMS(latest);
+      }
+    }, 10000);
+
+  } catch (err) {
+    console.error("Worker error:", err);
+    console.log("Retrying worker in 30s...");
+    setTimeout(startWorker, 30000);
+  }
 }
 
-// Run
+// === Run ===
 startWorker();
