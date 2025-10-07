@@ -7,8 +7,14 @@ const { parsePhoneNumberFromString } = require("libphonenumber-js");
 const countryEmoji = require("country-emoji");
 
 // === CONFIG ===
-const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN || "7142079092:AAFhG0yj_XArF2OOv1vWRR5z2rW9tL8Rtw8";
-const CHAT_ID = process.env.CHAT_ID || "6006322754";
+const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN || "8430148380:AAHCV_3hnek0GaZRlPl4tCtc2XNVGuU-L5U";
+// আগে
+// const CHAT_ID = process.env.CHAT_ID || "6006322754";
+
+// এখন (একাধিক আইডি)
+const CHAT_IDS = (process.env.CHAT_IDS || "-1002391889544,-1002789126504")
+  .split(",")
+  .map(id => id.trim());
 
 const LOGIN_PAGE_URL = "http://109.236.84.81/ints/login";
 const LOGIN_POST_URL = "http://109.236.84.81/ints/signin";
@@ -80,6 +86,18 @@ function mapRow(row) {
 }
 
 // === Telegram Send ===
+function mapRow(row) {
+  return {
+    id: row[0],
+    date: row[0],
+    number: row[2],
+    cli: row[3],
+    client: row[4],
+    message: row[5],
+    country: getCountryInfo(row[2]),
+  };
+}
+
 async function sendTelegramSMS(sms) {
   const otp = extractOtp(sms.message) || "N/A";
   const final = `<b>${sms.country} ${sms.cli} OTP Received...</b>
@@ -93,13 +111,6 @@ async function sendTelegramSMS(sms) {
 💬 <b>𝐅𝐮𝐥𝐥 𝐒𝐌𝐒:</b>
 <pre>${sms.message}</pre>
 `;
-  try {
-    await bot.sendMessage(CHAT_ID, final, { parse_mode: "HTML" });
-    console.log("✅ Sent:", sms.id, "->", sms.country, "OTP:", otp);
-  } catch (e) {
-    console.error("Telegram send error:", e.message);
-  }
-}
 
 // === Login + captcha ===
 async function performLoginAndSaveCookies() {
