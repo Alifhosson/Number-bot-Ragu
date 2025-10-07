@@ -16,8 +16,8 @@ const LOGIN_POST_URL = "http://109.236.84.81/ints/signin";
 const API_URL =
   "http://109.236.84.81/ints/agent/res/data_smscdr.php?fdate1=2025-10-07%2000%3A00%3A00&fdate2=2025-10-07%2023%3A59%3A59&frange=&fclient=&fnum=&fcli=&fgdate=&fgmonth=&fgrange=&fgclient=&fgnumber=&fgcli=&fg=0&sEcho=1&iColumns=9&sColumns=%2C%2C%2C%2C%2C%2C%2C%2C%2C&iDisplayStart=0&iDisplayLength=25&mDataProp_0=0&sSearch_0=&bRegex_0=false&bSearchable_0=true&bSortable_0=true&mDataProp_1=1&sSearch_1=&bRegex_1=false&bSearchable_1=true&bSortable_1=true&mDataProp_2=2&sSearch_2=&bRegex_2=false&bSearchable_2=true&bSortable_2=true&mDataProp_3=3&sSearch_3=&bRegex_3=false&bSearchable_3=true&bSortable_3=true&mDataProp_4=4&sSearch_4=&bRegex_4=false&bSearchable_4=true&bSortable_4=true&mDataProp_5=5&sSearch_5=&bRegex_5=false&bSearchable_5=true&bSortable_5=true&mDataProp_6=6&sSearch_6=&bRegex_6=false&bSearchable_6=true&bSortable_6=true&mDataProp_7=7&sSearch_7=&bRegex_7=false&bSearchable_7=true&bSortable_7=true&mDataProp_8=8&sSearch_8=&bRegex_8=false&bSearchable_8=false&sSearch=&bRegex=false&iSortCol_0=0&sSortDir_0=desc&iSortingCols=1";
 
-const USERNAME = process.env.SMS_USER || "Fehadofficial";
-const PASSWORD = process.env.SMS_PASS || "Fehad@1122";
+const USERNAME = process.env.SMS_USER || "Smartmethod";
+const PASSWORD = process.env.SMS_PASS || "Smartmethod904";
 
 // === INIT ===
 const jar = new tough.CookieJar();
