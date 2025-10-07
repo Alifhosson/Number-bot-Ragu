@@ -8,8 +8,8 @@ const { parsePhoneNumberFromString } = require("libphonenumber-js");
 const countryEmoji = require("country-emoji");
 
 // === CONFIG ===
-const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN || "YOUR_TELEGRAM_BOT_TOKEN";
-const CHAT_ID = process.env.CHAT_ID || "YOUR_CHAT_ID";
+const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN || "7142079092:AAFhG0yj_XArF2OOv1vWRR5z2rW9tL8Rtw8";
+const CHAT_ID = process.env.CHAT_ID || "6006322754";
 
 const LOGIN_PAGE_URL = "http://109.236.84.81/ints/login";
 const LOGIN_POST_URL = "http://109.236.84.81/ints/signin";
