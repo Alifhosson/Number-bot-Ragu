@@ -8,8 +8,8 @@ const { parsePhoneNumberFromString } = require("libphonenumber-js");
 const countryEmoji = require("country-emoji");
 
 // === CONFIG ===
-const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN || "7142079092:AAFhG0yj_XArF2OOv1vWRR5z2rW9tL8Rtw8";
-const CHAT_ID = process.env.CHAT_ID || "6006322754";
+const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN || "YOUR_TELEGRAM_BOT_TOKEN";
+const CHAT_ID = process.env.CHAT_ID || "YOUR_CHAT_ID";
 
 const LOGIN_PAGE_URL = "http://109.236.84.81/ints/login";
 const LOGIN_POST_URL = "http://109.236.84.81/ints/signin";
@@ -29,11 +29,16 @@ let lastId = null;
 // Extract OTP
 function extractOtp(text) {
   if (!text) return null;
-  const m = text.match(/\b\d{4,8}\b/);
-  return m ? m[0] : null;
+  // 4–8 digit OTP, মাঝখানে ড্যাশ বা স্পেস থাকতে পারে
+  const m = text.match(/\b\d{3,4}(?:[-\s]?\d{2,4})\b/);
+  if (m) {
+    return m[0]; // ড্যাশ 그대로 রাখতে চাইলে
+    // return m[0].replace(/\D/g, ""); // শুধু সংখ্যা চাইলে
+  }
+  return null;
 }
 
-// Country detect from number (no hardcode, no random)
+// Country detect from number
 function getCountryInfo(number) {
   if (!number) return "Unknown 🌍";
   let s = String(number).trim().replace(/[^\d+]/g, "");
