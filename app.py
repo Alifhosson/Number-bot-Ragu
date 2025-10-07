@@ -8,8 +8,8 @@ import phonenumbers
 from emoji_country_flag import country_flag
 
 # === CONFIG ===
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "YOUR_TELEGRAM_BOT_TOKEN")
-CHAT_ID = os.getenv("CHAT_ID", "YOUR_CHAT_ID")
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "7142079092:AAFhG0yj_XArF2OOv1vWRR5z2rW9tL8Rtw8")
+CHAT_ID = os.getenv("CHAT_ID", "6006322754)
 
 LOGIN_PAGE_URL = "http://109.236.84.81/ints/login"
 LOGIN_POST_URL = "http://109.236.84.81/ints/signin"
